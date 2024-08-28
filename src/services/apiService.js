@@ -3,13 +3,14 @@ import Cookies from "js-cookie";
 import { getCookie } from "../utils/getCookie";
 
 // Base URL for your API
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:8001/api";
 
 // Create an instance of axios
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    "Content-Type": "application/json",
+    // "Content-Type": "application/json",
+    // "Content-Type": "multipart/form-data",
   },
 });
 
@@ -38,7 +39,12 @@ apiClient.interceptors.request.use(
 
 // API methods
 const apiService = {
-  register: (userData) => apiClient.post("/auth/register", userData),
+  sendOtp: (data) => apiClient.post("/auth/sendotp", data),
+
+  register: (userData) => {
+    console.log(userData);
+    apiClient.post("/auth/register", userData);
+  },
 
   login: (credentials) => apiClient.post("/auth/login", credentials),
 
@@ -57,6 +63,8 @@ const apiService = {
   getAllLinks: () => apiClient.get("/links"),
 
   getLinksByUserId: (user_id) => apiClient.get("/links"),
+
+  shareLink: (data) => apiClient.post("/links/shareLink", data),
 
   updateLink: (linkId, linkData) => apiClient.put(`/links/${linkId}`, linkData),
 

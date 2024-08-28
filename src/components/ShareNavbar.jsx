@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "../style/ShareNavbar.css";
 
-function ShareNavbar() {
+function ShareNavbar({ onShareClick }) {
   return (
     <nav id="navbar-preview">
       <ul>
@@ -11,7 +11,7 @@ function ShareNavbar() {
           <Link to="/">Back to Editor</Link>
         </li>
         <li className="right-button">
-          <a href="#" id="share-link">
+          <a href="#" id="share-link" onClick={onShareClick}>
             Share Link
           </a>
         </li>

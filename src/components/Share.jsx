@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import apiService from "../services/apiService";
 import "../style/share.css";
+import Loader from "./Loader"; // Assuming you have a loader component
 import ShareNavbar from "./ShareNavbar";
 
 const Share = () => {
   const [userId, setUserId] = useState(null);
   const [profile, setProfile] = useState(null);
   const [links, setLinks] = useState([]);
+  const [recipientEmail, setRecipientEmail] = useState(""); // State for the recipient email
+  const [showEmailInput, setShowEmailInput] = useState(false); // State to show/hide the email input box
+  const [loading, setLoading] = useState(false); // State for the loader
 
   useEffect(() => {
-    // Fetch userId first
     const fetchUserId = async () => {
       try {
         const response = await apiService.getCurrentUser();
@@ -25,7 +30,6 @@ const Share = () => {
 
   useEffect(() => {
     if (userId) {
-      // Fetch profile data
       const fetchProfile = async () => {
         try {
           const response = await apiService.getCurrentUser();
@@ -36,7 +40,6 @@ const Share = () => {
         }
       };
 
-      // Fetch links data
       const fetchLinks = async () => {
         try {
           const response = await apiService.getLinksByUserId(userId);
@@ -52,23 +55,31 @@ const Share = () => {
     }
   }, [userId]);
 
-  const handleShareLinkClick = async (event) => {
-    event.preventDefault();
-    const pageUrl = window.location.href;
+  const handleShareLinkClick = () => {
+    setShowEmailInput(true); // Show the email input box when the button is clicked
+  };
 
-    if (navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(pageUrl);
-        alert("Page URL has been copied to the clipboard!");
-      } catch (err) {
-        console.error("Could not copy text: ", err);
-      }
+  const handleSendEmail = async (event) => {
+    event.preventDefault();
+    setLoading(true); // Start the loader
+
+    try {
+      const response = await apiService.shareLink({ recipientEmail });
+      toast.success(response.data.message); // Show success toast
+      setShowEmailInput(false); // Hide the email input box after sending the email
+      setRecipientEmail(""); // Clear the input field
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("Failed to send the email. Please try again.");
+    } finally {
+      setLoading(false); // Stop the loader
     }
   };
 
   return (
     <>
-      <ShareNavbar />
+      <ToastContainer /> {/* Toast container for notifications */}
+      <ShareNavbar onShareClick={handleShareLinkClick} />
       <div className="left">
         <div className="smartphone">
           <div className="profile-container" id="profile-details">
@@ -108,8 +119,23 @@ const Share = () => {
           </div>
         </div>
       </div>
+      {showEmailInput && (
+        <form onSubmit={handleSendEmail} className="email-form">
+          <label htmlFor="recipientEmail">Enter recipient's email:</label>
+          <input
+            type="email"
+            id="recipientEmail"
+            value={recipientEmail}
+            onChange={(e) => setRecipientEmail(e.target.value)}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? <Loader info="Links" /> : "Send Email"}
+          </button>
+        </form>
+      )}
       <button onClick={handleShareLinkClick} className="share-button">
-        Share This Page
+        Share the Links
       </button>
     </>
   );
