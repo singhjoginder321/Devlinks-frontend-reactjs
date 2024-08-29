@@ -49,8 +49,15 @@ cd Devlinks-frontend-reactjs
 If your project uses Docker Compose, you can start the application with a single command. Ensure you have a `docker-compose.yml` file in the root of your project directory, then run:
 
 ```bash
-docker-compose up
+docker-compose up --build
 ```
+
+This command will build the image and start the container as defined in your `docker-compose.yml` file.
+
+## Troubleshooting
+
+- **Port Conflicts**: If you encounter issues with port conflicts, ensure that port `8001` specified in the `docker run` command is not already in use on your host machine.
+- **Environment Variables**: Ensure all required environment variables are properly set in the `.env` file.
 
 This command will build the image and start the container as defined in your `docker-compose.yml` file.
 
